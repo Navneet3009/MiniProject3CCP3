@@ -66,12 +66,11 @@ public class BorrowService {
 	}
 
 
-
-
 	public void listBorrowedBooksByUser(Scanner sc) throws SQLException {
 		try (Connection conn = DBUtils.getConnection()) {
 			System.out.print("User ID: ");
 			int userId = sc.nextInt();
+			sc.nextLine();
 			String sql = "SELECT b.title, bb.borrow_date, bb.return_date FROM borrowed_books bb JOIN books b ON bb.book_id = b.book_id WHERE bb.user_id=?";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, userId);
@@ -85,11 +84,11 @@ public class BorrowService {
 
 	public void listUnreturnedBooks() throws SQLException {
 		try (Connection conn = DBUtils.getConnection()) {
-			String sql = "SELECT name, email FROM users WHERE user_id IN (SELECT user_id FROM borrowed_books WHERE return_date IS NULL)";
+			String sql = "select b.book_id, b.title, u.user_id as Borrower_Id, u.name as Borrower_Name, bb.borrow_date from borrowed_books bb JOIN users u on u.user_id=bb.user_id join books b on b.book_id = bb.book_id where bb.return_date is null";
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery(sql);
 			while (rs.next()) {
-				System.out.println(rs.getString("name") + " | " + rs.getString("email"));
+				System.out.println(rs.getInt("book_id")+" | "+ rs.getString("title") + " | " +rs.getInt("Borrower_Id")+"|"+rs.getString("Borrower_Name") + " | " + rs.getDate("borrow_date"));
 			}
 		}
 	}
